@@ -1,0 +1,12 @@
+definition_version: 2
+entities:
+  superhero_generator:
+    type: streamlit
+    identifier: superhero_generator
+    stage: superhero_stage
+    query_warehouse: CUBE_TESTING
+    title: "Snowflake Superhero Generator"
+    main_file: streamlit_app.py
+    artifacts:
+      - streamlit_app.py
+      - environment.yml 
