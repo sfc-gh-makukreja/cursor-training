@@ -25,22 +25,18 @@ fi
 echo "✅ Snowflake connection successful"
 echo ""
 
-# Run database setup
-echo "🗄️ Setting up database schema and initial data..."
-if snow sql -f setup.sql --connection default; then
-    echo "✅ Database setup completed successfully"
-else
-    echo "❌ Database setup failed"
-    exit 1
-fi
+# Deploy using Git integration - no file uploads needed!
+echo "🔗 Deploying from Git repository integration..."
+echo "   📍 Repository: https://github.com/sfc-gh-makukreja/cursor-training.git"
+echo "   🌿 Branch: feature/snowflake-superhero-app"
 echo ""
 
-# Deploy Streamlit app
-echo "📱 Deploying Streamlit app..."
-if snow streamlit deploy --connection default --replace; then
-    echo "✅ Streamlit app deployed successfully"
+# Run complete setup (Git integration + CREATE STREAMLIT)  
+echo "🗄️ Setting up infrastructure and deploying app from Git..."
+if snow sql -f setup.sql --connection default; then
+    echo "✅ Git-based deployment successful!"
 else
-    echo "❌ Streamlit deployment failed"
+    echo "❌ Git deployment failed"
     exit 1
 fi
 echo ""
@@ -54,7 +50,8 @@ echo ""
 echo "📋 Summary:"
 echo "   • Database schema: ✅ Created"
 echo "   • Initial data: ✅ Populated (6 superhero archetypes)"
-echo "   • Streamlit app: ✅ Deployed"
+echo "   • Git integration: ✅ Connected to repository"
+echo "   • Streamlit app: ✅ Deployed from Git branch"
 echo "   • Analytics views: ✅ Ready"
 echo ""
 if [ -n "$APP_URL" ]; then
