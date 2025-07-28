@@ -26,10 +26,11 @@ Interactive Streamlit in Snowflake app for Accenture's booth activation at Snowf
    - Image preview and retake option
    - Support for mobile and desktop cameras
 
-2. **AI-Powered Predictions**
-   - Generate Snowflake-themed superhero names
-   - Predict relevant superpowers
-   - Use image analysis or randomized logic
+2. **AI-Powered Predictions (using Snowflake Cortex AISQL)**
+   - Generate Snowflake-themed superhero names using AI_COMPLETE
+   - Classify visitor photos to determine superhero archetype using AI_CLASSIFY
+   - Predict relevant superpowers based on image analysis using AI_COMPLETE
+   - Filter superhero options based on data professional traits using AI_FILTER
    - Fast processing (< 5 seconds for booth environment)
 
 3. **Result Display**
@@ -65,7 +66,11 @@ Interactive Streamlit in Snowflake app for Accenture's booth activation at Snowf
 ### Snowflake Integration
 - **Deployment**: Streamlit in Snowflake (SiS)
 - **Data Storage**: Store visitor interactions, generated names, and analytics
-- **AI Services**: Leverage Snowflake Cortex for any ML predictions
+- **AI Services**: Leverage Snowflake Cortex AISQL functions:
+  - `AI_CLASSIFY()` for photo categorization (age group, professional style, mood)
+  - `AI_COMPLETE()` for superhero name and power generation
+  - `AI_FILTER()` for content filtering and appropriateness
+  - `AI_SIMILARITY()` for matching similar superhero archetypes
 - **Security**: Implement proper data governance and privacy controls
 
 ### App Architecture
@@ -101,11 +106,70 @@ dependencies:
   - requests         # API calls if needed
 ```
 
+### Cortex AISQL Implementation
+
+#### Photo Analysis Pipeline
+```sql
+-- 1. Classify visitor photo characteristics
+SELECT AI_CLASSIFY(
+  image_data,
+  ['professional', 'casual', 'creative', 'technical'],
+  'style'
+) as professional_style,
+AI_CLASSIFY(
+  image_data,
+  ['confident', 'analytical', 'innovative', 'collaborative'],
+  'personality_traits'
+) as traits;
+
+-- 2. Generate superhero identity based on classification
+SELECT AI_COMPLETE(
+  'Generate a Snowflake Data Cloud superhero name for someone with ' || 
+  professional_style || ' style and ' || traits || ' traits. ' ||
+  'The name should relate to data, AI, cloud computing, or analytics.',
+  500
+) as superhero_name;
+
+-- 3. Generate matching superpower
+SELECT AI_COMPLETE(
+  'Create a data/AI-related superpower for ' || superhero_name || 
+  ' that matches their ' || traits || ' personality. ' ||
+  'Focus on Snowflake capabilities like scaling, performance, AI, or data governance.',
+  300
+) as superpower;
+
+-- 4. Filter for appropriateness
+SELECT AI_FILTER(
+  superhero_name || ': ' || superpower,
+  'inappropriate_content'
+) as is_appropriate;
+```
+
+#### Superhero Archetype Matching
+```sql
+-- Use AI_SIMILARITY to match against predefined archetypes
+WITH superhero_archetypes AS (
+  SELECT * FROM VALUES
+    ('Data Wizard', 'analytical, precise, transformative'),
+    ('Cloud Commander', 'leadership, scalable, reliable'),
+    ('AI Oracle', 'predictive, insightful, forward-thinking'),
+    ('Query Ninja', 'fast, efficient, problem-solving')
+  AS t(archetype, traits)
+)
+SELECT 
+  archetype,
+  AI_SIMILARITY(visitor_traits, traits) as similarity_score
+FROM superhero_archetypes
+ORDER BY similarity_score DESC
+LIMIT 1;
+```
+
 ### Performance Requirements
-- **Response Time**: < 5 seconds from photo to result
+- **Response Time**: < 5 seconds from photo to result (including AI processing)
 - **Concurrent Users**: Support 10-20 simultaneous booth visitors
 - **Reliability**: 99%+ uptime during event hours
 - **Mobile Responsive**: Work on phones, tablets, laptops
+- **AI Token Limits**: Optimize prompt length for cost-effective Cortex usage
 
 ## Implementation Plan
 
@@ -120,10 +184,11 @@ dependencies:
    - Implement camera capture interface
    - Design result display layout
 
-3. **Superhero Generator Logic**
-   - Create database of names and powers
-   - Implement randomization or simple ML logic
-   - Test generation algorithms
+3. **Cortex AISQL Integration**
+   - Implement AI_CLASSIFY for photo analysis
+   - Develop AI_COMPLETE prompts for name/power generation
+   - Create superhero archetype database
+   - Test AI response quality and performance
 
 ### Phase 2: Enhancement & Integration (Week 2)
 1. **Advanced Features**
@@ -156,13 +221,19 @@ dependencies:
 
 ### Database Schema
 ```sql
--- Visitor interactions
+-- Visitor interactions with AI analysis
 CREATE TABLE superhero_visitors (
     visit_id STRING,
     timestamp TIMESTAMP,
     superhero_name STRING,
     superpower STRING,
+    archetype STRING,
     image_path STRING,
+    ai_analysis VARIANT,  -- Store AI_CLASSIFY results
+    professional_style STRING,
+    personality_traits STRING,
+    similarity_scores VARIANT,
+    ai_tokens_used NUMBER,
     session_data VARIANT
 );
 
@@ -171,7 +242,19 @@ CREATE TABLE booth_analytics (
     event_time TIMESTAMP,
     action_type STRING,
     session_id STRING,
+    ai_function_used STRING,
+    processing_time_ms NUMBER,
     metadata VARIANT
+);
+
+-- Superhero archetypes for AI_SIMILARITY matching
+CREATE TABLE superhero_archetypes (
+    archetype_id STRING,
+    archetype_name STRING,
+    description STRING,
+    traits_vector STRING,
+    sample_names ARRAY,
+    sample_powers ARRAY
 );
 ```
 
@@ -214,6 +297,10 @@ CREATE TABLE booth_analytics (
 ### Development Costs
 - Development time: 2-3 weeks
 - Snowflake compute costs: Estimated $200-500 for event period
+- **Cortex AISQL costs**: Estimated $300-800 for event period
+  - AI_CLASSIFY: ~$0.02 per image analysis
+  - AI_COMPLETE: ~$0.05 per superhero generation
+  - Expected 500-1000 visitors during event
 - Additional tools/services: $100-300
 
 ### Event Costs
