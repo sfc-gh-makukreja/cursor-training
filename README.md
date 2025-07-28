@@ -22,10 +22,13 @@ This project demonstrates how to leverage **Cursor AI** to rapidly build compell
 - **🎨 Professional UI**: Accenture & Snowflake co-branded booth experience
 
 ### 🏗️ **Technical Architecture**
-- **Streamlit in Snowflake (SiS)**: Native deployment with zero infrastructure
+- **Git-Integrated CI/CD**: Direct deployment from GitHub using Snowflake Git Repository
+- **Streamlit in Snowflake (SiS)**: SQL-first deployment with `CREATE STREAMLIT`
 - **Cortex AISQL Functions**: `AI_CLASSIFY`, `AI_COMPLETE`, `AI_FILTER` integration
 - **Secure File Processing**: Encrypted stages with automatic cleanup
-- **Separation of Concerns**: Infrastructure (SQL) separated from application logic
+- **Infrastructure as Code**: Complete SQL-based setup and deployment
+- **True CI/CD Pipeline**: Git push → automatic Streamlit redeployment
+- **Separation of Concerns**: Pure SQL infrastructure, Python application logic
 - **Error Handling**: Robust fallback modes for reliable booth operation
 
 ## 🧠 Cursor AI Development Methodology
@@ -84,9 +87,8 @@ Cursor AI demonstrated deep knowledge of:
 
 ```
 ├── streamlit_app.py          # Main application (camera input, AI analysis, UI)
-├── setup.sql                 # Infrastructure layer (tables, stages, views)
-├── deploy.sh                 # Automated deployment script
-├── snowflake.yml            # Streamlit in Snowflake configuration
+├── setup.sql                 # Complete CI/CD infrastructure (Git integration + CREATE STREAMLIT)
+├── deploy.sh                 # Simple Git-based deployment execution
 ├── environment.yml          # Python dependencies (Snowflake channel only)
 ├── pages/
 │   └── admin_dashboard.py   # Analytics dashboard for booth monitoring
@@ -102,23 +104,41 @@ Cursor AI demonstrated deep knowledge of:
 ### **Prerequisites**
 - Snowflake account with Cortex AI enabled
 - Snowflake CLI installed and configured
+- Git API Integration and credentials configured in Snowflake
 - Cursor IDE with AI features enabled
 
-### **1. Clone and Deploy**
+### **1. Setup Git Integration (One-time)**
+```sql
+-- Run as Snowflake admin
+CREATE API INTEGRATION git_api_integration 
+  API_PROVIDER = git_https_api
+  API_ALLOWED_PREFIXES = ('https://github.com/')
+  ENABLED = TRUE;
+
+CREATE SECRET git_creds 
+  TYPE = PASSWORD 
+  USERNAME = 'your_github_username'
+  PASSWORD = 'your_github_token';
+
+GRANT USAGE ON INTEGRATION git_api_integration TO ROLE YOUR_ROLE;
+```
+
+### **2. Clone and Deploy**
 ```bash
 git clone https://github.com/sfc-gh-makukreja/cursor-training.git
 cd cursor-training
-./deploy.sh  # Automated setup + deployment
+./deploy.sh  # Git-based CI/CD deployment
 ```
 
-### **2. Customize for Your Demo**
-Use the established patterns to adapt for different use cases:
+### **3. Customize for Your Demo**
+True CI/CD workflow for iterative development:
 - Modify AI prompts in `streamlit_app.py`
 - Update branding and styling 
 - Add new Cortex AI functions
 - Extend analytics dashboard
+- **Git push** → automatic Streamlit redeployment!
 
-### **3. Learn from AI Development Process**
+### **4. Learn from AI Development Process**
 Study the git commit history to see:
 - How requirements evolved through AI collaboration
 - Problem-solving patterns with Cursor AI

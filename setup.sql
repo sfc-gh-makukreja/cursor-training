@@ -1,5 +1,12 @@
--- Snowflake Superhero Generator Database Setup
--- This script creates all necessary tables and populates initial data
+-- Snowflake Superhero Generator - Complete CI/CD Setup Script
+-- This script creates all infrastructure and deploys from Git repository
+--
+-- PREREQUISITES (must be created by Snowflake admin):
+-- 1. Git API Integration: CREATE API INTEGRATION git_api_integration (TYPE=GIT_HTTPS_API, ENABLED=TRUE)
+-- 2. Git Credentials: CREATE SECRET git_creds (TYPE=PASSWORD, USERNAME='github_user', PASSWORD='github_token')
+-- 3. Permissions: GRANT USAGE ON INTEGRATION git_api_integration TO ROLE CURRENT_ROLE
+--
+-- This approach enables true CI/CD: any Git push triggers automatic redeployment
 
 -- Create the main visitor tracking table
 CREATE TABLE IF NOT EXISTS SUPERHERO_VISITORS (
@@ -39,6 +46,17 @@ CREATE TABLE IF NOT EXISTS BOOTH_ANALYTICS (
 CREATE STAGE IF NOT EXISTS photo_analysis_stage
     ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
     COMMENT = 'Stage for superhero photo analysis using Cortex AI';
+
+-- Create Git repository integration for CI/CD deployment
+CREATE OR REPLACE GIT REPOSITORY superhero_git_repo
+    API_INTEGRATION = SFC_GH_MAKUKREJA_INTEGRATION
+    ORIGIN = 'https://github.com/sfc-gh-makukreja/cursor-training.git'
+    COMMENT = 'Git repository for Snowflake Superhero Generator CI/CD';
+
+-- Create stage for Git repository files  
+CREATE STAGE IF NOT EXISTS superhero_stage
+    ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
+    COMMENT = 'Stage for Snowflake Superhero Generator from Git repository';
 
 -- Clear existing archetype data (for clean setup)
 DELETE FROM SUPERHERO_ARCHETYPES;
@@ -136,6 +154,14 @@ CROSS JOIN (
     SELECT COUNT(*) as total_visitors FROM SUPERHERO_VISITORS
 ) total
 ORDER BY visitor_count DESC NULLS LAST;
+
+-- Create Streamlit application from Git repository
+CREATE OR REPLACE STREAMLIT superhero_generator
+  FROM @superhero_git_repo/branches/feature/snowflake-superhero-app/
+  MAIN_FILE = 'streamlit_app.py'
+  QUERY_WAREHOUSE = COMPUTE_WH
+  TITLE = 'Snowflake Superhero Generator - Git CI/CD'
+  COMMENT = 'AI-powered superhero generator deployed from Git repository';
 
 -- Grant permissions (adjust role names as needed)
 -- GRANT SELECT ON SUPERHERO_VISITORS TO ROLE STREAMLIT_USER;
