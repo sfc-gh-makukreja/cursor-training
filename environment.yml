@@ -2,27 +2,19 @@
 # For Streamlit in Snowflake deployment
 
 name: superhero-app
-
+channels:
+  - snowflake
 dependencies:
-  # Core Streamlit and data processing
-  - streamlit>=1.28.0
-  - pandas>=1.5.0
-  - numpy>=1.24.0
+  # Core Streamlit and data processing (from Snowflake Anaconda Channel only)
+  - streamlit
+  - pandas
+  - numpy
   
   # Image processing
-  - pillow>=9.0.0
-  - opencv-python>=4.7.0
+  - pillow
   
-  # Snowflake integration
-  - snowflake-snowpark-python>=1.11.0
-  - snowflake-connector-python>=3.4.0
+  # Snowflake integration (automatically available in SiS)
+  - snowflake-snowpark-python
   
   # Utilities
-  - requests>=2.28.0
-  - python-dateutil>=2.8.0
-  
-  # Additional packages via pip
-  - pip
-  - pip:
-    - streamlit-webrtc>=0.47.0  # For camera integration if needed
-    - uuid  # For session management 
+  - requests 
