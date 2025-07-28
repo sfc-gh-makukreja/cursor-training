@@ -10,7 +10,6 @@ from datetime import datetime
 import snowflake.snowpark as snowpark
 from snowflake.snowpark import Session
 from snowflake.snowpark.functions import col, lit, call_builtin
-import cv2
 
 # Configure page
 st.set_page_config(
