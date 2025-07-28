@@ -1,0 +1,23 @@
+# Snowflake Superhero Generator - Dependencies
+# For Streamlit in Snowflake deployment
+
+name: superhero-app
+channels:
+  - snowflake
+dependencies:
+  # Core Streamlit and data processing (from Snowflake Anaconda Channel only)
+  - streamlit
+  - pandas
+  - numpy
+  
+  # Image processing
+  - pillow
+  
+  # Charts and visualization
+  - plotly
+  
+  # Snowflake integration (automatically available in SiS)
+  - snowflake-snowpark-python
+  
+  # Utilities
+  - requests 

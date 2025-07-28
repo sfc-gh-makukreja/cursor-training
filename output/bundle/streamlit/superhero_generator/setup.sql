@@ -1,0 +1,1 @@
+/Users/makukreja/projects/cursor-training/setup.sql
