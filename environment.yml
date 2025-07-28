@@ -13,6 +13,9 @@ dependencies:
   # Image processing
   - pillow
   
+  # Charts and visualization
+  - plotly
+  
   # Snowflake integration (automatically available in SiS)
   - snowflake-snowpark-python
   

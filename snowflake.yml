@@ -9,4 +9,6 @@ entities:
     main_file: streamlit_app.py
     artifacts:
       - streamlit_app.py
-      - environment.yml 
+      - environment.yml
+      - pages/
+      - setup.sql 
