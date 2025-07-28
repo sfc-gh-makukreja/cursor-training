@@ -156,8 +156,9 @@ CROSS JOIN (
 ORDER BY visitor_count DESC NULLS LAST;
 
 -- Create Streamlit application from Git repository
+-- Note: Ensure all changes are merged to main branch before deployment
 CREATE OR REPLACE STREAMLIT superhero_generator
-  FROM @superhero_git_repo/branches/feature/snowflake-superhero-app/
+  FROM @superhero_git_repo/branches/main/
   MAIN_FILE = 'streamlit_app.py'
   QUERY_WAREHOUSE = COMPUTE_WH
   TITLE = 'Snowflake Superhero Generator - Git CI/CD'
